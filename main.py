@@ -1,22 +1,30 @@
+from typing import Literal
 from fastapi import FastAPI
-from pydantic import BaseModel
-import joblib, pandas as pd
+from pydantic import BaseModel, Field
+import joblib
+import pandas as pd
 
-app = FastAPI()
+app = FastAPI(title="Insurance Cost API")
+
 model = joblib.load("model.joblib")
-columns = joblib.load("columns.joblib")
+
 
 class Person(BaseModel):
-    age: int
-    sex: str
-    bmi: float
-    children: int
-    smoker: str
-    region: str
+    age: int = Field(ge=18, le=100)
+    sex: Literal["male", "female"]
+    bmi: float = Field(ge=10, le=60)
+    children: int = Field(ge=0, le=10)
+    smoker: Literal["yes", "no"]
+    region: Literal["northeast", "northwest", "southeast", "southwest"]
+
+
+@app.get("/")
+def home():
+    return {"message": "Insurance API is running"}
+
 
 @app.post("/predict")
 def predict(p: Person):
     df = pd.DataFrame([p.model_dump()])
-    df = pd.get_dummies(df)
-    df = df.reindex(columns=columns, fill_value=0)
-    return {"predicted_cost": float(model.predict(df)[0])}
+    pred = model.predict(df)[0]
+    return {"predicted_charges": round(float(pred), 2)}

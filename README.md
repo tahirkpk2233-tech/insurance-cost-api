@@ -1,4 +1,5 @@
 # Medical Insurance Cost Predictor
+**Live demo:** https://insurance-cost-api-i3ymtjju74kwjqfeoird3q.streamlit.app/
 
 A machine learning project that estimates yearly medical insurance
 charges from a person's details, served as a FastAPI service and a
